@@ -50,5 +50,5 @@ Bonus features we decided to include:
 - Minor module: Expanding Browser Compatibility (Firefox-compatibility)
 
 
-Due to this repository being a copy of the original repo, the git commits are not attributed correctly. In this project, I was mostly involved with working on back-end features (microservices), server-side pong and CLI client for the Pong.
+Due to this repository being a copy of the original repo, the git commits are not attributed correctly. In this project, I was mostly involved with working on back-end features (microservices), server-side pong and CLI client for the Pong. A .env file is required to run the program.
 
