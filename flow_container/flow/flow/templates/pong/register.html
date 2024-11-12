@@ -1,0 +1,107 @@
+{% if user %}
+
+<form id="register-form">
+    <h1>Register</h1>
+    <div id="register-error" class="show">Can not register while logged in.</div>
+    <button type="submit">Log out</button>
+    <a class="button" href="#home">Continue</a>
+</form>
+
+<script>
+{
+    const registerForm = document.getElementById('register-form');
+    const registerError = document.getElementById('register-error');
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await fetch('/api/logout');
+            const result = await response.text();
+
+            if (response.ok) {
+                loadPageHash();
+            }
+            else {
+                registerError.textContent = result;
+            }
+        }
+        catch (error) {
+            registerError.textContent = error;
+        }
+    });
+}
+</script>
+
+{% else %}
+
+<form id="register-form">
+    <h1>Register</h1>
+    <input type="text" id="username" name="username" placeholder="User name" required>
+    <input type="email" id="email" name="email" placeholder="E-mail" required>
+    <input type="password" id="password" name="password" placeholder="Password" required>
+    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm password" required>
+    <div id="register-error"></div>
+    <button type="submit">Register</button>
+</form>
+
+<script>
+{
+    const registerForm = document.getElementById('register-form');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm-password');
+    const registerError = document.getElementById('register-error');
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        registerError.textContent = '';
+        registerError.classList.remove("show");
+        username.classList.remove("error");
+        email.classList.remove("error");
+        password.classList.remove("error");
+        confirmPassword.classList.remove("error");
+
+        if (validateUsername(username, registerError)
+            && validateEmail(email, registerError)
+            && validatePassword(password, confirmPassword, registerError)) {
+            try {
+                const token = getCookie('csrftoken');
+                const response = await fetch('/api/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': token
+                    },
+                    body: JSON.stringify({
+                        username: username.value,
+                        email: email.value,
+                        password: password.value,
+                        confirm_password: confirmPassword.value
+                    }),
+                });
+
+                const result = await response.text();
+
+                if (response.ok) {
+                    window.location.hash = 'login'
+                }
+                else {
+                    registerError.textContent = result;
+                    registerError.classList.add("show");
+                }
+            }
+            catch (error) {
+                registerError.textContent = error;
+                registerError.classList.add("show");
+            }
+        }
+    });
+    
+    username.focus();
+}
+</script>
+
+{% endif %}

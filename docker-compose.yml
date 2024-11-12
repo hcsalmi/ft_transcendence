@@ -1,0 +1,60 @@
+services:
+
+  proxy:
+    build: ./proxy_container
+    ports:
+      - "8008:8008"
+    depends_on:
+      flow:
+        condition: service_healthy
+      matchmaker:
+        condition: service_healthy
+    restart: unless-stopped
+
+  flow:
+    build: ./flow_container
+    env_file:
+      - ./.env
+    depends_on:
+      matchmaker:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8000 || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 3s
+    volumes:
+      - ./flow_container/avatar_volume:/code/api/static/avatars
+  
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${SQL_USER}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD}
+      POSTGRES_DB: ${SQL_DATABASE}
+    restart: unless-stopped
+    pull_policy: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SQL_USER}"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  matchmaker:
+    build: ./matchmaker_container
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8001 || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 4s

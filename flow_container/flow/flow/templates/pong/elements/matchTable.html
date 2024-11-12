@@ -1,0 +1,39 @@
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Opponent</th>
+            <th>Score</th>
+            <th>Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if targetUser %}
+            {% for match in matchData %}
+            <tr>
+                <td>{{ match.match__matchDate }}</td>
+                <td>{{ match.opponent__username }}</td>
+                <td>{{ match.score }}</td>
+                <td>{{ match.result }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No matches found.</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            {% for match in matchData %}
+            <tr>
+                <td>{{ match.match__matchDate }}</td>
+                <td>{{ match.opponent__username }}</td>
+                <td>{{ match.score }}</td>
+                <td>{{ match.result }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No matches found.</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>

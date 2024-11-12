@@ -1,0 +1,52 @@
+<h1>Home page</h1>
+
+<form id="startgame-form">
+    <button type="submit" value="online">online game</button>
+    <button type="submit" value="onlineTournament">online tournament</button>
+    <button type="submit" value="local">local game</button>
+    <button type="submit" value="localTournament">local tournament</button>
+    <button type="submit" value="ai">ai</button>
+</form>
+
+<script>
+{
+    const startGameForm = document.getElementById('startgame-form');
+
+	startGameForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        try {
+            const token = getCookie('csrftoken');
+            const matchmakerQuery = '?gameMode=' + event.submitter.value
+                                  + '&player1=Player1'
+                                  + '&player2=Player2'
+                                  + '&player3=Player3'
+                                  + '&player4=Player4';
+
+            const response = await fetch('/api/matchmaker' + matchmakerQuery, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': token
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                removeEventListener("hashchange", loadPageHash);
+                addEventListener("hashchange", (event) => {
+                    changeContainerLobby(document.body, result.url);
+                    addEventListener("hashchange", loadPageHash);
+                },
+                { once: true });
+                window.location.hash = 'lobby';
+            }
+            else {
+                console.log(await response.text());
+            }
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+}
+</script>
